@@ -160,10 +160,10 @@ cython_debug/
 #.idea/
 
 
-/Dockerfile
+Dockerfile
 
 /venv
 
 .DS_Store
 
-config/
+/src/config/
