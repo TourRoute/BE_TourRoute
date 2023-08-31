@@ -11,7 +11,12 @@ from src.schema.request_response import SignUpRequest, Token, LoginRequest, Upda
 from src.config import settings
 # 몽고디비 연결 및 디비,컬렉션 설정
 # ("52.78.114.56", 56088) ("127.0.0.1", 27017)
-my_client = MongoClient(settings.MONGODB_URL, 27017)
+my_client = MongoClient("127.0.0.1:27017",
+                        username=settings.MONGODB_USER,
+                        password=settings.MONGODB_PWD,
+                        authSource=settings.MONGODB_AUTHSOURCE,
+                        authMechanism=settings.MONGODB_AUTHMECHANISM)
+
 my_db = my_client["user"]
 my_col = my_db["users"]
 
@@ -55,7 +60,7 @@ async def login(form_data: LoginRequest = Depends(),):
     }
 
     access_token = jwt.encode(data, settings.SECRET_KEY,
-                              algorithm=settings.ALGORITHM)
+                            algorithm=settings.ALGORITHM)
 
     return {
         "access_token": access_token,
@@ -71,7 +76,7 @@ async def read_mypage(token: str = Header(default=None)):
                             detail="토큰이 없거나 올바르지 않습니다.")
     else:
         payload = jwt.decode(token, settings.SECRET_KEY,
-                             algorithms=[settings.ALGORITHM])
+                            algorithms=[settings.ALGORITHM])
         user_email: str = payload.get("sub")
         if user_email is None:
             raise HTTPException(status.HTTP_401_UNAUTHORIZED,
@@ -92,15 +97,15 @@ async def update_mypage(request_data: UpdateUserInfo, token: str = Header(defaul
                             detail="토큰이 없거나 올바르지 않습니다.")
     else:
         payload = jwt.decode(token, settings.SECRET_KEY,
-                             algorithms=[settings.ALGORITHM])
+                            algorithms=[settings.ALGORITHM])
         user_email: str = payload.get("sub")
         if user_email is None:
             raise HTTPException(status.HTTP_401_UNAUTHORIZED,
                                 detail="토큰에 해당하는 유저의 정보가 없습니다.")
 
     if my_col.find_one({"email": user_email}):
-        my_col.update_one({"email": user_email}, {
-                          "$set": {"username": request_data.username}})
+        my_col.update_one({"email": user_email},
+                        {"$set": {"username": request_data.username}})
         raise HTTPException(status_code=200, detail="수정이 완료되었습니다.")
     else:
         raise HTTPException(status_code=400, detail="이메일 정보가 없습니다.")

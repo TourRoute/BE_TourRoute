@@ -11,7 +11,7 @@ def checkToken(token: str):
 
     else:
         payload = jwt.decode(token, settings.SECRET_KEY,
-                             algorithms=[settings.ALGORITHM])
+                            algorithms=[settings.ALGORITHM])
         user_email: str = payload.get("sub")
 
     if user_email is None:

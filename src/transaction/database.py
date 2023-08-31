@@ -3,10 +3,11 @@ from src.config import settings
 import random
 
 
-my_client = MongoClient(settings.MONGODB_URL, 27017)
-# my_db = my_client["user"]
-# my_col = my_db["users"]
-
+my_client = MongoClient("127.0.0.1:27017",
+                        username=settings.MONGODB_USER,
+                        password=settings.MONGODB_PWD,
+                        authSource=settings.MONGODB_AUTHSOURCE,
+                        authMechanism=settings.MONGODB_AUTHMECHANISM)
 
 def getData(DB: str, Collection: str, field: dict):
     db = my_client["touroute"]
