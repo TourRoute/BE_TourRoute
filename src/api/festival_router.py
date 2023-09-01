@@ -29,6 +29,10 @@ async def add_bookmark(festival_name: str, token: str = Header(default=None)):
     my_col = my_db["festival"]
     festival_info = my_col.find_one({"f_name": festival_name}, {"_id": 0})
     if festival_info:
+        my_col = my_db["bookmark"]
+        check_info = my_col.find_one({"f_name": festival_name, "user_email": user_email}, {"_id": 0})
+        if check_info:
+            raise HTTPException(status_code=400, detail="이미 즐겨찾기가 되어 있습니다.")
         keys = [key for key in festival_info.keys()]
         keys.append("user_email")
         values = [value for value in festival_info.values()]
