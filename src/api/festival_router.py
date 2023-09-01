@@ -45,7 +45,7 @@ async def add_bookmark(festival_name: str, token: str = Header(default=None)):
     else:
         raise HTTPException(status_code=400, detail="축제 정보가 없습니다.")
 
-@router.post("/get_bookmark", status_code=200)
+@router.get("/get_bookmark", status_code=200)
 async def get_bookmark(token: str = Header(default=None)):
     user_email = check_token(token)
     my_db = my_client["touroute"]
