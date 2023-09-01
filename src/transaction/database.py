@@ -3,7 +3,7 @@ from src.config import settings
 import random
 
 
-my_client = MongoClient("127.0.0.1:27017",
+my_client = MongoClient(settings.MONGODB_URL,
                         username=settings.MONGODB_USER,
                         password=settings.MONGODB_PWD,
                         authSource=settings.MONGODB_AUTHSOURCE,
