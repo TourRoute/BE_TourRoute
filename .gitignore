@@ -167,3 +167,5 @@ Dockerfile
 .DS_Store
 
 /src/config/
+
+.idea
