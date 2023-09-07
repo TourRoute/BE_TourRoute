@@ -11,7 +11,7 @@ from src.schema.request_response import SignUpRequest, Token, LoginRequest, Upda
 from src.config import settings
 # 몽고디비 연결 및 디비,컬렉션 설정
 # ("52.78.114.56", 56088) ("127.0.0.1", 27017)
-my_client = MongoClient("127.0.0.1:27017",
+my_client = MongoClient(settings.MONGODB_URL,
                         username=settings.MONGODB_USER,
                         password=settings.MONGODB_PWD,
                         authSource=settings.MONGODB_AUTHSOURCE,

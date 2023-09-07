@@ -4,7 +4,7 @@ from pymongo import MongoClient
 from src.config import settings
 from src.validation.tokenValidation import check_token
 
-my_client = MongoClient("127.0.0.1:27017",
+my_client = MongoClient(settings.MONGODB_URL,
                         username=settings.MONGODB_USER,
                         password=settings.MONGODB_PWD,
                         authSource=settings.MONGODB_AUTHSOURCE,
@@ -16,9 +16,11 @@ router = APIRouter(prefix="/festival")
 async def get_festival_info():
     my_db = my_client["touroute"]
     my_col = my_db["festival"]
-    response_query = my_col.find({}, {"_id": 0})
-    if response_query:
-        return [x for x in response_query]
+
+    response = [x for x in my_col.find({}, {"_id": 0})]
+
+    if response:
+        return response
     else:
         raise HTTPException(status_code=400, detail="컬렉션 정보가 없습니다.")
 
