@@ -169,3 +169,4 @@ Dockerfile
 /src/config/
 
 .idea
+.idea/*.xml
