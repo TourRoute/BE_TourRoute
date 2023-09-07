@@ -7,7 +7,7 @@ from passlib.context import CryptContext
 from pymongo import MongoClient
 from starlette import status
 
-from src.schema.request_response import SignUpRequest, Token, LoginRequest, UpdateUserInfo
+from src.schema.user_request_response import SignUpRequest, Token, LoginRequest, UpdateUserInfo
 from src.config import settings
 # 몽고디비 연결 및 디비,컬렉션 설정
 # ("52.78.114.56", 56088) ("127.0.0.1", 27017)
@@ -89,7 +89,7 @@ async def read_mypage(token: str = Header(default=None)):
     return response_query
 
 
-@router.put("/mypage")
+@router.put("/update_mypage")
 async def update_mypage(request_data: UpdateUserInfo, token: str = Header(default=None)):
 
     if token is None:
