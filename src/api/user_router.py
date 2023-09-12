@@ -60,7 +60,7 @@ async def login(form_data: LoginRequest = Depends(),):
     }
 
     access_token = jwt.encode(data, settings.SECRET_KEY,
-                            algorithm=settings.ALGORITHM)
+                              algorithm=settings.ALGORITHM)
 
     return {
         "access_token": access_token,
@@ -76,7 +76,7 @@ async def read_mypage(token: str = Header(default=None)):
                             detail="토큰이 없거나 올바르지 않습니다.")
     else:
         payload = jwt.decode(token, settings.SECRET_KEY,
-                            algorithms=[settings.ALGORITHM])
+                             algorithms=[settings.ALGORITHM])
         user_email: str = payload.get("sub")
         if user_email is None:
             raise HTTPException(status.HTTP_401_UNAUTHORIZED,
@@ -97,7 +97,7 @@ async def update_mypage(request_data: UpdateUserInfo, token: str = Header(defaul
                             detail="토큰이 없거나 올바르지 않습니다.")
     else:
         payload = jwt.decode(token, settings.SECRET_KEY,
-                            algorithms=[settings.ALGORITHM])
+                             algorithms=[settings.ALGORITHM])
         user_email: str = payload.get("sub")
         if user_email is None:
             raise HTTPException(status.HTTP_401_UNAUTHORIZED,
@@ -105,7 +105,7 @@ async def update_mypage(request_data: UpdateUserInfo, token: str = Header(defaul
 
     if my_col.find_one({"email": user_email}):
         my_col.update_one({"email": user_email},
-                        {"$set": {"username": request_data.username}})
+                          {"$set": {"username": request_data.username}})
         raise HTTPException(status_code=200, detail="수정이 완료되었습니다.")
     else:
         raise HTTPException(status_code=400, detail="이메일 정보가 없습니다.")

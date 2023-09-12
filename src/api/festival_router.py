@@ -12,6 +12,7 @@ my_client = MongoClient(settings.MONGODB_URL,
 
 router = APIRouter(prefix="/festival")
 
+
 @router.get("/get_info")
 async def get_festival_info():
     my_db = my_client["touroute"]
@@ -24,6 +25,7 @@ async def get_festival_info():
     else:
         raise HTTPException(status_code=400, detail="컬렉션 정보가 없습니다.")
 
+
 @router.post("/add_bookmark")
 async def add_bookmark(festival_name: str, token: str = Header(default=None)):
     user_email = check_token(token)
@@ -32,7 +34,8 @@ async def add_bookmark(festival_name: str, token: str = Header(default=None)):
     festival_info = my_col.find_one({"f_name": festival_name}, {"_id": 0})
     if festival_info:
         my_col = my_db["bookmark"]
-        check_info = my_col.find_one({"f_name": festival_name, "user_email": user_email}, {"_id": 0})
+        check_info = my_col.find_one(
+            {"f_name": festival_name, "user_email": user_email}, {"_id": 0})
         if check_info:
             raise HTTPException(status_code=400, detail="이미 즐겨찾기가 되어 있습니다.")
         keys = [key for key in festival_info.keys()]
@@ -47,6 +50,7 @@ async def add_bookmark(festival_name: str, token: str = Header(default=None)):
     else:
         raise HTTPException(status_code=400, detail="축제 정보가 없습니다.")
 
+
 @router.post("/get_bookmark", status_code=200)
 async def get_bookmark(token: str = Header(default=None)):
     user_email = check_token(token)
@@ -58,12 +62,14 @@ async def get_bookmark(token: str = Header(default=None)):
     else:
         raise HTTPException(status_code=400, detail="즐겨찾기 정보가 없습니다.")
 
+
 @router.delete("/delete_bookmark")
 async def delete_bookmark(festival_name: str, token: str = Header(default=None)):
     user_email = check_token(token)
     my_db = my_client["touroute"]
     my_col = my_db["bookmark"]
-    bookmark = my_col.find_one({"user_email": user_email, "f_name": festival_name}, {"_id: 0"})
+    bookmark = my_col.find_one(
+        {"user_email": user_email, "f_name": festival_name}, {"_id: 0"})
     print(bookmark)
     if bookmark:
         my_col.delete_one({"user_email": user_email, "f_name": festival_name})

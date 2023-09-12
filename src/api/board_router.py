@@ -14,12 +14,14 @@ my_client = MongoClient(settings.MONGODB_URL,
 
 router = APIRouter(prefix="/board")
 
+
 @router.post("/create_board", status_code=201)
 async def create_board(response_schema: create_board_schema, token: str = Header(default=None)):
     my_db = my_client["board"]
     my_col = my_db["boards"]
     user_email = check_token(token)
-    username = my_col.find_one({"user_email": user_email}, {"username": 1}).values()
+    username = my_col.find_one({"user_email": user_email}, {
+                               "username": 1}).values()
     response_body = {
         "user_email": user_email,
         "username": username,
