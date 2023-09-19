@@ -27,8 +27,6 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 router = APIRouter(prefix="/users")
 
 # 회원가입
-
-
 @router.post("/signup", status_code=201)
 async def signup(user: SignUpRequest):
 
@@ -42,6 +40,17 @@ async def signup(user: SignUpRequest):
     }
 
     my_col.insert_one(insert_user)
+
+    my_db2 = my_client["touroute"]
+    my_col2 = my_db2["festival"]
+    f_list = my_col2.find({}, {"_id": 0})
+    f_list = [x for x in f_list]
+    my_db3 = my_client["user"]
+    my_col3 = my_db3["festival"]
+    for x in f_list:
+        x["is_bookmark"] = False
+        x["user_email"] = user.email
+        my_col3.insert_one(x)
 
     return {"message": "회원가입이 완료되었습니다."}
 
@@ -63,9 +72,7 @@ async def login(form_data: LoginRequest = Depends(),):
                             algorithm=settings.ALGORITHM)
 
     return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "email": form_data.email
+        "access_token": access_token
     }
 
 
