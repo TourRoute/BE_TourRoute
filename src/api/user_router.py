@@ -37,6 +37,7 @@ async def signup(user: SignUpRequest):
         "username": user.username,
         "email": user.email,
         "password": pwd_context.hash(user.password1),
+        "latest": datetime.now()
     }
 
     my_col.insert_one(insert_user)
@@ -92,6 +93,7 @@ async def read_mypage(token: str = Header(default=None)):
     response_query = {
         "username": user_info["username"],
         "email": user_email,
+        "latest": user_info["latest"]
     }
     return response_query
 
@@ -112,7 +114,7 @@ async def update_mypage(request_data: UpdateUserInfo, token: str = Header(defaul
 
     if my_col.find_one({"email": user_email}):
         my_col.update_one({"email": user_email},
-                        {"$set": {"username": request_data.username}})
+                        {"$set": {"username": request_data.username, "latest": datetime.now()}})
         raise HTTPException(status_code=200, detail="수정이 완료되었습니다.")
     else:
         raise HTTPException(status_code=400, detail="이메일 정보가 없습니다.")
