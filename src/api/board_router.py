@@ -19,7 +19,7 @@ async def create_board(response_schema: create_board_schema, token: str = Header
     my_db = my_client["user"]
     my_col = my_db["users"]
     user_email = check_token(token)
-    username = list(my_col.find_one({"user_email": user_email}, {"username": 1}).values())[0]
+    username = my_col.find_one({"email": user_email}).get("username")
     response_body = {
         "user_email": user_email,
         "username": username,
@@ -57,10 +57,8 @@ async def delete_board(request_body: delete_board_schema, token: str = Header(de
     user_email = check_token(token)
     my_db = my_client["board"]
     my_col = my_db["boards"]
-    bookmark = my_col.find_one({"user_email": user_email, "created_at": request_body.created_at},
-                                {"_id", 0})
-    if bookmark:
-        my_col.delete_one({"user_email": user_email, "title": request_body.title, "created_at":request_body.created_at})
+    if my_col.find_one({"title": request_body.title, "created_at": request_body.created_at, "user_email": user_email}):
+        my_col.delete_one({"title": request_body.title, "user_email": user_email, "created_at": request_body.created_at})
         raise HTTPException(status_code=200, detail="게시물 삭제 완료")
     else:
         raise HTTPException(status_code=400, detail="게시물 정보가 없습니다.")

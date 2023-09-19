@@ -8,6 +8,7 @@ class create_board_schema(BaseModel):
     contents: str
     is_free: bool = None
     is_accompany: bool = None
+
 class delete_board_schema(BaseModel):
     title: str
     created_at: datetime = None

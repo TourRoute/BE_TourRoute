@@ -35,11 +35,13 @@ async def bookmark(festival_name: str, token: str = Header(default=None)):
     user_email = check_token(token)
     my_db = my_client["user"]
     my_col = my_db["festival"]
-    is_bookmark = list(my_col.find_one({"f_name": festival_name, "user_email": user_email}, {"is_bookmark": 1}).values())[0]
+    is_bookmark = my_col.find_one({"f_name": festival_name, "user_email": user_email}).get("is_bookmark")
     if is_bookmark is True:
         my_col.update_one({"f_name": festival_name, "user_email": user_email}, {"$set": {"is_bookmark": False}})
     else:
         my_col.update_one({"f_name": festival_name, "user_email": user_email}, {"$set": {"is_bookmark": True}})
+
+    raise HTTPException(status_code=200, detail="즐겨찾기 변경 성공")
 
 # @router.post("/bookmark")
 # async def add_bookmark(festival_name: str, token: str = Header(default=None)):
