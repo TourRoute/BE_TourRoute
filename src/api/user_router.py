@@ -1,16 +1,17 @@
 from datetime import timedelta, datetime
 import jwt
-from fastapi import APIRouter, HTTPException, Depends, Header
+from typing import Annotated
+from fastapi import APIRouter, HTTPException, Depends, Header, Request
 from fastapi.security import OAuth2PasswordBearer
 # from fastapi.security import OAuth2PasswordRequestForm # 유저네임으로 로그인할시
 from passlib.context import CryptContext
 from pymongo import MongoClient
 from starlette import status
-
+from src.validation.tokenValidation import check_token
 from src.schema.user_request_response import SignUpRequest, Token, LoginRequest, UpdateUserInfo
 from src.config import settings
-# 몽고디비 연결 및 디비,컬렉션 설정
-# ("52.78.114.56", 56088) ("127.0.0.1", 27017)
+from src.transaction import database
+
 my_client = MongoClient(settings.MONGODB_URL,
                         username=settings.MONGODB_USER,
                         password=settings.MONGODB_PWD,
@@ -109,3 +110,14 @@ async def update_mypage(request_data: UpdateUserInfo, token: str = Header(defaul
         raise HTTPException(status_code=200, detail="수정이 완료되었습니다.")
     else:
         raise HTTPException(status_code=400, detail="이메일 정보가 없습니다.")
+
+
+@router.get("/get-user/{email}")
+async def get_user(email, token: str = Header(default=None),):
+    res = check_token(token)
+
+    response = database.getData("user", "users", {"email":email})
+
+    del response[0]["password"]
+
+    return response

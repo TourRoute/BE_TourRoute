@@ -1,20 +1,24 @@
 from pymongo import MongoClient
 from src.config import settings
-import random
 
+my_client = MongoClient("127.0.0.1",
+                        username=settings.MONGODB_USER,
+                        password=settings.MONGODB_PWD,
+                        authSource=settings.MONGODB_AUTHSOURCE,
+                        authMechanism=settings.MONGODB_AUTHMECHANISM)
 
-# my_client = MongoClient("127.0.0.1:27017",  username=settings.MONGODB_USER, password=settings.MONGODB_PWD, authSource=settings.MONGODB_AUTHSOURCE,authMechanism=settings.MONGODB_AUTHMECHANISM)
+my_db = my_client["touroute"]
+my_col = my_db["festival"]
 
-# db = my_client["touroute"]
+trash = "http://13.209.56.221/home/tour/img/"
 
-# a = [x for x in db["festival"].find({}, {"_id": 0})]
+imageList = list()
 
-# print(a)
+for i in my_col.find({}):
+    i["i_link"] = i["i_link"][len(trash):]
+    imageList.append(i["i_link"])
 
-data = {"data": 1}
+print(imageList)
 
-data["log"] = "horse"
-
-print(data)
-
-a = {"city":"대구","theme":"문화","period":["2023-07-10", "2023-70-13"],"accompany":["hgjinkim@gmail.com", "admin@admin.com"],"userEmail":"hgjinkim@gmail.com"}
+for i in imageList:
+    my_col.update_one({"i_link": {"$regex": i}}, {"$set":{"i_link": i}})
