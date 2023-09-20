@@ -171,3 +171,5 @@ Dockerfile
 .idea
 
 .idea/*.xml
+
+.gitconfig
