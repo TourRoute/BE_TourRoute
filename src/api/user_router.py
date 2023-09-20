@@ -27,8 +27,6 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 router = APIRouter(prefix="/users")
 
 # 회원가입
-
-
 @router.post("/signup", status_code=201)
 async def signup(user: SignUpRequest):
 
@@ -39,9 +37,21 @@ async def signup(user: SignUpRequest):
         "username": user.username,
         "email": user.email,
         "password": pwd_context.hash(user.password1),
+        "latest": datetime.now()
     }
 
     my_col.insert_one(insert_user)
+
+    my_db2 = my_client["touroute"]
+    my_col2 = my_db2["festival"]
+    f_list = my_col2.find({}, {"_id": 0})
+    f_list = [x for x in f_list]
+    my_db3 = my_client["user"]
+    my_col3 = my_db3["festival"]
+    for x in f_list:
+        x["is_bookmark"] = False
+        x["user_email"] = user.email
+        my_col3.insert_one(x)
 
     return {"message": "회원가입이 완료되었습니다."}
 
@@ -63,9 +73,7 @@ async def login(form_data: LoginRequest = Depends(),):
                             algorithm=settings.ALGORITHM)
 
     return {
-        "access_token": access_token,
-        "token_type": "bearer",
-        "email": form_data.email
+        "access_token": access_token
     }
 
 
@@ -85,6 +93,7 @@ async def read_mypage(token: str = Header(default=None)):
     response_query = {
         "username": user_info["username"],
         "email": user_email,
+        "latest": user_info["latest"]
     }
     return response_query
 
@@ -105,7 +114,7 @@ async def update_mypage(request_data: UpdateUserInfo, token: str = Header(defaul
 
     if my_col.find_one({"email": user_email}):
         my_col.update_one({"email": user_email},
-                        {"$set": {"username": request_data.username}})
+                        {"$set": {"username": request_data.username, "latest": datetime.now()}})
         raise HTTPException(status_code=200, detail="수정이 완료되었습니다.")
     else:
         raise HTTPException(status_code=400, detail="이메일 정보가 없습니다.")
