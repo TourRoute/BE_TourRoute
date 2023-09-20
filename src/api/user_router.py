@@ -105,7 +105,7 @@ async def update_mypage(request_data: UpdateUserInfo, token: str = Header(defaul
 
     if my_col.find_one({"email": user_email}):
         my_col.update_one({"email": user_email},
-                          {"$set": {"username": request_data.username}})
+                          {"$set": {"username": request_data.username, "latest": datetime.now()}})
         raise HTTPException(status_code=200, detail="수정이 완료되었습니다.")
     else:
         raise HTTPException(status_code=400, detail="이메일 정보가 없습니다.")
