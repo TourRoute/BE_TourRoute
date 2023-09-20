@@ -9,8 +9,9 @@ my_client = MongoClient(settings.MONGODB_URL,
                         authSource=settings.MONGODB_AUTHSOURCE,
                         authMechanism=settings.MONGODB_AUTHMECHANISM)
 
-def getData(DB: str, Collection: str, field: dict):
-    db = my_client["touroute"]
+
+def getData(DB: str, Collection: str, field: dict | None):
+    db = my_client[DB]
     dest = db[Collection]
 
     resultList = []
@@ -20,3 +21,10 @@ def getData(DB: str, Collection: str, field: dict):
         resultList.append(i)
 
     return resultList
+
+
+def insertData(DB: str, Collection: str, data: list):
+    db = my_client[DB]
+    dest = db[Collection]
+
+    return dest.insert_many(data)
