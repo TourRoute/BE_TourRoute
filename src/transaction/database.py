@@ -2,7 +2,6 @@ from pymongo import MongoClient
 from src.config import settings
 import random
 
-
 my_client = MongoClient(settings.MONGODB_URL,
                         username=settings.MONGODB_USER,
                         password=settings.MONGODB_PWD,
@@ -16,10 +15,9 @@ def getData(DB: str, Collection: str, field: dict | None):
 
     resultList = []
 
-    for i in dest.find(field):
-        i['_id'] = str(i['_id'])
+    for i in dest.find(field, {"_id": 0}):
         resultList.append(i)
-
+        
     return resultList
 
 

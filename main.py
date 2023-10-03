@@ -6,7 +6,7 @@ from src.api import user_router, plan_router, festival_router, board_router
 
 app = FastAPI()
 
-app.mount("/img", StaticFiles(directory="/app/img"), name="static")
+#app.mount("/img", StaticFiles(directory="/app/img"), name="static")
 
 app.add_middleware(
     CORSMiddleware,

@@ -126,6 +126,9 @@ async def get_user(email, token: str = Header(default=None),):
 
     response = database.getData("user", "users", {"email":email})
 
-    del response[0]["password"]
+    if response != None:
+        del response[0]["password"]
 
-    return response
+        return response
+    
+    raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="해당 이메일이 존재하지 않습니다.")
