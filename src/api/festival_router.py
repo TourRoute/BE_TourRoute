@@ -30,6 +30,24 @@ async def get_festival_info(token: str = Header(default=None)):
         my_col = my_db["festival"]
         return [x for x in my_col.find({"user_email": user_email}, {"_id": 0})]
 
+@router.get("/get_city_info")
+async def get_city_info(city_name: str, token: str = Header(default=None)):
+    if token is None:
+        my_db = my_client["touroute"]
+        my_col = my_db["festival"]
+
+        response = [x for x in my_col.find({"city": city_name}, {"_id": 0})]
+
+        if response:
+            return response
+        else:
+            raise HTTPException(status_code=400, detail="컬렉션 정보가 없습니다.")
+    else:
+        user_email = check_token(token)
+        my_db = my_client["user"]
+        my_col = my_db["festival"]
+        return [x for x in my_col.find({"user_email": user_email, "city": city_name}, {"_id": 0})]
+
 @router.post("/bookmark")
 async def bookmark(festival_name: str, token: str = Header(default=None)):
     user_email = check_token(token)
