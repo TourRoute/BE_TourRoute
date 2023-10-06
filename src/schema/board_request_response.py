@@ -6,8 +6,7 @@ from pydantic import BaseModel, EmailStr
 class CreateBoardSchema(BaseModel):
     title: str
     contents: str
-    is_free: bool = None
-    is_accompany: bool = None
+    recruitment: str
 
 class DeleteBoardSchema(BaseModel):
     b_id: int

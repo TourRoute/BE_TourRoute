@@ -1,6 +1,7 @@
 from datetime import timedelta, datetime
 from fastapi import APIRouter, HTTPException, Depends, Header
 from fastapi.security import OAuth2PasswordBearer
+from haversine import haversine
 from passlib.context import CryptContext
 from pymongo import MongoClient
 from starlette import status
@@ -11,6 +12,24 @@ from typing import Annotated
 from src.schema.plan_request_response import plan_schema
 from src.transaction import database
 import random
+
+
+def navigation_algorithm(response_body, request_body):
+    short_distance_info = {}
+    short_distance = float('inf')
+
+    for x in range(len(request_body)):
+        s_point = (float(response_body[-1]["latitude"]), float(response_body[-1]["longitude"]))
+        destination = (float(request_body[x]["latitude"]), float(request_body[x]["longitude"]))
+        distance = haversine(s_point, destination)
+        if short_distance > distance:
+            short_distance = distance
+            short_distance_info = request_body[x]
+
+    response_body.append(short_distance_info)
+    request_body.remove(short_distance_info)
+
+    return response_body, request_body
 
 
 router = APIRouter(prefix="/plan")
@@ -29,8 +48,7 @@ def recommandPlan(city: str, theme: str, period: int, token: str = Header(defaul
     
     restaurant = [x for x in database.getData("touroute", "restaurant", {dbField["restaurant"]: {"$regex": '^'+city}})]
     random.shuffle(restaurant)
-    
-    
+
     if theme == "restaurant":
         pairTheme = [x for x in database.getData("touroute", tourPair[theme], {dbField[tourPair[theme]]: {"$regex": '^'+city}})]
         random.shuffle(pairTheme)
@@ -44,7 +62,7 @@ def recommandPlan(city: str, theme: str, period: int, token: str = Header(defaul
             resultList.append(temp)
 
         
-        return resultList
+        # return resultList
 
     elif tourPair[theme] == "restaurant":
         mainTheme = [x for x in database.getData("touroute", theme, {dbField[theme]: {"$regex": '^'+city}})]
@@ -58,9 +76,8 @@ def recommandPlan(city: str, theme: str, period: int, token: str = Header(defaul
 
             resultList.append(temp)
 
-        return resultList
-        
-    
+        # return resultList
+
     else:
         mainTheme = [x for x in database.getData("touroute", theme, {dbField[theme]: {"$regex": '^'+city}})]
         random.shuffle(mainTheme)
@@ -76,7 +93,64 @@ def recommandPlan(city: str, theme: str, period: int, token: str = Header(defaul
 
             resultList.append(temp)
 
-        return resultList
+        # return resultList
+
+    data_list = []
+
+    for x in range(period):
+        data_list += resultList[x]
+
+    if theme == "museum":
+
+        other_list = []
+        restaurant_list = []
+
+        for x in range(len(data_list)):
+            if data_list[x]["category"] == "restaurant":
+                restaurant_list.append(data_list[x])
+            else:
+                other_list.append(data_list[x])
+
+        response_body = [other_list[0]]
+        other_list = other_list[1:]
+
+        while 1:
+
+            if len(restaurant_list) == 1 and len(other_list) == 1:
+                response_body = response_body + restaurant_list + other_list
+                break
+
+            response_body, restaurant_list = navigation_algorithm(response_body, restaurant_list)
+
+            for x in range(2):
+                response_body, other_list = navigation_algorithm(response_body, other_list)
+
+    else:
+
+        other_list = []
+        restaurant_list = []
+
+        for x in range(len(data_list)):
+            if data_list[x]["category"] == "restaurant":
+                restaurant_list.append(data_list[x])
+            else:
+                other_list.append(data_list[x])
+
+        response_body = [restaurant_list[0]]
+        restaurant_list = restaurant_list[1:]
+
+        while 1:
+
+            if len(restaurant_list) == 1 and len(other_list) == 1:
+                response_body = response_body + other_list + restaurant_list
+                break
+
+            response_body, other_list = navigation_algorithm(response_body, other_list)
+
+            for x in range(2):
+                response_body, restaurant_list = navigation_algorithm(response_body, restaurant_list)
+
+    return [response_body[i:i + 3] for i in range(0, len(response_body), 3)]
 
 
 @router.post("/save-plan")
