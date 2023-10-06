@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException, Header
 from pymongo import MongoClient
 from fastapi.responses import JSONResponse
 from src.config import settings
-from src.schema.comment_request_response import CreateCommentSchema, DeleteCommentSchema, \
+from src.schema.comment_request_response import CreateCommentSchema, \
     UpdateCommentSchema
 from src.validation.tokenValidation import check_token
 from datetime import datetime
@@ -71,14 +71,14 @@ async def update_comment(request_body: UpdateCommentSchema, token: str = Header(
         raise HTTPException(status_code=400, detail="작성자 정보 불일치")
 
 @router.delete("/delete_comment")
-async def delete_comment(request_body: DeleteCommentSchema, token: str = Header(default=None)):
+async def delete_comment(c_id: int, token: str = Header(default=None)):
     user_email = check_token(token)
     my_db = my_client["comment"]
     my_col = my_db["comments"]
-    user_email2 = my_col.find_one({"c_id": request_body.c_id}).get("user_email")
+    user_email2 = my_col.find_one({"c_id": c_id}).get("user_email")
     if user_email == user_email2:
-        if my_col.find_one({"c_id": request_body.c_id, "user_email": user_email}):
-            my_col.delete_one({"c_id": request_body.c_id, "user_email": user_email})
+        if my_col.find_one({"c_id": c_id, "user_email": user_email}):
+            my_col.delete_one({"c_id": c_id, "user_email": user_email})
             raise HTTPException(status_code=200, detail="댓글 삭제 완료")
         else:
             raise HTTPException(status_code=400, detail="댓글 정보 불일치")

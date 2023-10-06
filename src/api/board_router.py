@@ -38,7 +38,8 @@ async def create_board(response_schema: CreateBoardSchema, token: str = Header(d
         "contents": response_schema.contents,
         "created_at": datetime.now(),
         "category": response_schema.category,
-        "recruitment": response_schema.recruitment
+        "recruitment": response_schema.recruitment,
+        "r_link": response_schema.r_link
     }
     my_db = my_client["board"]
     my_col = my_db["boards"]
@@ -86,7 +87,7 @@ async def update_board(request_body: UpdateBoardSchema, token: str = Header(defa
 
     if user_email == user_email2:
         my_col.update_one({"b_id": request_body.b_id, "user_email": user_email},
-                        {"$set": {"contents": request_body.contents}})
+                        {"$set": {"contents": request_body.contents, "recruitment": request_body.recruitment}})
         raise HTTPException(status_code=200, detail="게시물 수정 완료")
     else:
         raise HTTPException(status_code=400, detail="게시물 작성자가 일치하지 않습니다.")
