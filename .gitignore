@@ -173,3 +173,5 @@ Dockerfile
 .idea/*.xml
 
 .gitconfig
+
+test.py
