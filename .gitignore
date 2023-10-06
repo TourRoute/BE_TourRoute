@@ -174,4 +174,4 @@ Dockerfile
 
 .gitconfig
 
-test.py
+/test.py
