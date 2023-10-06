@@ -9,6 +9,3 @@ class CreateCommentSchema(BaseModel):
 class UpdateCommentSchema(BaseModel):
     c_id: int
     contents: str
-
-class DeleteCommentSchema(BaseModel):
-    c_id: int
