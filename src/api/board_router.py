@@ -37,9 +37,8 @@ async def create_board(response_schema: CreateBoardSchema, token: str = Header(d
         "title": response_schema.title,
         "contents": response_schema.contents,
         "created_at": datetime.now(),
-        "is_all": True,
-        "is_free": response_schema.is_free,
-        "is_accompany": response_schema.is_accompany
+        "category": response_schema.category,
+        "recruitment": response_schema.recruitment
     }
     my_db = my_client["board"]
     my_col = my_db["boards"]
