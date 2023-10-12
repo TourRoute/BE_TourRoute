@@ -28,5 +28,3 @@ class LoginRequest(BaseModel):
     email: EmailStr
     password: str
 
-class UpdateUserInfo(BaseModel):
-    username: str
