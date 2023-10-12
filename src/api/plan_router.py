@@ -7,7 +7,7 @@ from pymongo import MongoClient
 from starlette import status
 from src.validation.tokenValidation import check_token
 from src.config import settings
-from src.schema.user_request_response import SignUpRequest, Token, LoginRequest, UpdateUserInfo
+from src.schema.user_request_response import SignUpRequest, Token, LoginRequest
 from typing import Annotated
 from src.schema.plan_request_response import plan_schema
 from src.transaction import database
@@ -41,7 +41,7 @@ router = APIRouter(prefix="/plan")
 def recommandPlan(city: str, theme: str, period: int, token: str = Header(default=None)):
     
     tourPair = {"restaurant":"park", "mountain":"restaurant", "museum":"tourspot", "park":"restaurant", "tourspot":"restaurant"}
-    dbField = {"mountain":"name", "park":"소재지지번주소","restaurant":"store_address","museum":"소재지도로명주소","tourspot":"소재지지번주소"}
+    dbField = {"mountain":"name", "park":"sn_addr","restaurant":"store_address","museum":"rn_addr","tourspot":"sn_addr"}
     check_token(token)
     
     resultList = list()
