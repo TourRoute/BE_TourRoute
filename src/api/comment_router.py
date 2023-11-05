@@ -31,13 +31,15 @@ async def create_comment(request_body: CreateCommentSchema, token: str = Header(
     my_col = my_db["users"]
     user_email = check_token(token)
     username = my_col.find_one({"email": user_email}).get("username")
+    img_link = my_col.find_one({"email": user_email}).get("img_link")
     response_body = {
         "c_id": await select_c_id(),
         "b_id": request_body.b_id,
         "user_email": user_email,
         "username": username,
         "contents": request_body.contents,
-        "created_at": datetime.now()
+        "created_at": datetime.now(),
+        "i_link": img_link
     }
     my_db = my_client["comment"]
     my_col = my_db["comments"]
