@@ -14,6 +14,21 @@ from src.transaction import database
 import random
 
 
+async def select_p_id():
+    my_client = MongoClient(settings.MONGODB_URL,
+                            username=settings.MONGODB_USER,
+                            password=settings.MONGODB_PWD,
+                            authSource=settings.MONGODB_AUTHSOURCE,
+                            authMechanism=settings.MONGODB_AUTHMECHANISM)
+    my_db = my_client["touroute"]
+    my_col = my_db["plan"]
+    plan_count = my_col.estimated_document_count()
+    if plan_count == 0:
+        return 0
+    latest_b_id = my_col.find({}, {"_id": 0, "p_id": 1}).sort("created_at", -1).limit(1)
+    p_id = latest_b_id[0].get("p_id")
+    return int(p_id)+1
+
 def navigation_algorithm(response_body, request_body):
     short_distance_info = {}
     short_distance = float('inf')
@@ -154,20 +169,32 @@ def recommandPlan(city: str, theme: str, period: int, token: str = Header(defaul
 
 
 @router.post("/save-plan")
-def savePlan(request: plan_schema, token: str = Header(default=None)):
+async def savePlan(request: plan_schema, token: str = Header(default=None)):
     res = check_token(token)
     data = list()
-    data.append(request.__dict__)
+
+    insert_body = {
+        "p_id": await select_p_id(),
+        "city": request.city,
+        "theme": request.theme,
+        "period": request.period,
+        "accompany": request.accompany,
+        "email": res,
+        "tourList": request.tourList,
+        "created_at": datetime.now()
+    }
+
+    data.append(insert_body)
     database.insertData("touroute", "plan", data)
 
     raise HTTPException(status_code=200, detail="여행 계획이 저장 되었습니다.")
 
 
 @router.get("/get-plan/{email}")
-def getPlan(email: str, token: str = Header(default=None),):
-    res = check_token(token)
+def getPlan(token: str = Header(default=None)):
+    user_email = check_token(token)
 
-    response = database.getData("touroute", "plan", {"email": email})
+    response = database.getData("touroute", "plan", {"email": user_email})
 
     resultList = [x for x in response]
 

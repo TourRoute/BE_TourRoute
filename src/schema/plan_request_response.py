@@ -6,5 +6,4 @@ class plan_schema(BaseModel):
     theme: str = None
     period: list = None
     accompany: list = None
-    email: str = None
     tourList: list = None
