@@ -9,7 +9,7 @@ from pymongo import MongoClient
 from starlette import status
 from src.validation.tokenValidation import check_token
 from src.transaction import database
-from src.schema.user_request_response import SignUpRequest, Token, LoginRequest
+from src.schema.user_request_response import SignUpRequest, Token, LoginRequest, AddFriend
 from src.config import settings
 
 my_client = MongoClient(settings.MONGODB_URL,
@@ -100,7 +100,7 @@ async def read_mypage(token: str = Header(default=None)):
 
 
 @router.put("/update_mypage")
-async def update_mypage(username: str, file: UploadFile, token: str = Header(default=None)):
+async def update_mypage(username: str = None, file: UploadFile | None = None, token: str = Header(default=None)):
 
     if token is None:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED,
@@ -112,30 +112,63 @@ async def update_mypage(username: str, file: UploadFile, token: str = Header(def
             raise HTTPException(status.HTTP_401_UNAUTHORIZED,
                                 detail="토큰에 해당하는 유저의 정보가 없습니다.")
 
-    upload_path = "/home/img/userinfo"
-    file_name = f'{user_email.split("@")[0]}.png'
-    file_content = await file.read()
+    if file is not None:
+        upload_path = "/app/img/userinfo"
+        file_name = f'{user_email.split("@")[0]}.png'
+        file_content = await file.read()
+        my_col.update_one({"email": user_email}, {"$set": {"img_link": "http://13.209.56.221:8000/img/userinfo/" + file_name}})
 
-    with open(os.path.join(upload_path, file_name), "wb") as f:
-        f.write(file_content)
+        if not os.path.isdir(upload_path):
+            os.mkdir(upload_path)
+
+        with open(os.path.join(upload_path, file_name), "wb") as f:
+            f.write(file_content)
 
     if my_col.find_one({"email": user_email}):
-        my_col.update_one({"email": user_email},
-                        {"$set": {"username": username, "latest": datetime.now(), "img_link": save_path}})
+        if username is None:
+            my_col.update_one({"email": user_email},
+                            {"$set": {"latest": datetime.now()}})
+        else:
+            my_col.update_one({"email": user_email},
+                            {"$set": {"username": username, "latest": datetime.now()}})
         raise HTTPException(status_code=200, detail="수정이 완료되었습니다.")
     else:
         raise HTTPException(status_code=400, detail="이메일 정보가 없습니다.")
 
 
 @router.get("/get-user/{email}")
-async def get_user(email, token: str = Header(default=None),):
-    res = check_token(token)
+async def get_user(email: str, token: str = Header(default=None)):
+    user_email = check_token(token)
 
-    response = database.getData("user", "users", {"email":email})
-
-    if response != None:
-        del response[0]["password"]
-
+    response = my_col.find_one({"email": email}, {"_id": 0, "password": 0})
+    if response:
+        response["status_code"] = 200
         return response
-    
-    raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="해당 이메일이 존재하지 않습니다.")
+    else:
+        return HTTPException(status_code=400, detail="이메일이 없습니다.")
+
+@router.put("/add_friend/{email}")
+async def get_user(request_body: AddFriend, token: str = Header(default=None)):
+    user_email = check_token(token)
+
+    my_db = my_client["user"]
+    my_col = my_db["users"]
+
+    check_email = my_col.find_one({"email": request_body.email})
+    if check_email:
+        pass
+    else:
+        return HTTPException(status_code=400, detail="추가하려는 이메일이 없습니다.")
+
+    my_db = my_client["touroute"]
+    my_col = my_db["plan"]
+
+    res_body = my_col.find_one({"email": user_email, "p_id": request_body.p_id}, {"_id": 0, "accompany": 1})
+    if res_body:
+        accompany_list = res_body["accompany"]
+        accompany_list.append(request_body.email)
+        my_col.update_one({"email": user_email, "p_id": request_body.p_id}, {"$set": {"accompany": accompany_list}})
+        return HTTPException(status_code=200, detail="동행 이메일이 추가되었습니다.")
+    else:
+        return HTTPException(status_code=400, detail="추가하려는 계획이 없습니다.")
+

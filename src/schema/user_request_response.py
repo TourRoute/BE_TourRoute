@@ -28,3 +28,6 @@ class LoginRequest(BaseModel):
     email: EmailStr
     password: str
 
+class AddFriend(BaseModel):
+    email: EmailStr
+    p_id: int
