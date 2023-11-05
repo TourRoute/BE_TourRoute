@@ -8,7 +8,7 @@ class CreateBoardSchema(BaseModel):
     contents: str
     category: str
     recruitment: str
-    r_link: str
+    r_link: str = ""
 
 class DeleteBoardSchema(BaseModel):
     b_id: int
