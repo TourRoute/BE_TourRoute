@@ -2,16 +2,23 @@
 
 ### 인원 : FE 2명 ( 전병규, 양아름 ) , BE 2명 (김형진, 류재문)
 
+<br>
+<br>
 
-**개발 환경**
---
-<li>OS: Ubuntu 18.04 LTS</li>
-<li>Framework: Django(Python)</li>
-<li>DB: MongoDB</li>
+## BackEnd 개발환경
+<li>OS</li>
+<img src="https://img.shields.io/badge/Ubuntu-E95420?style=for-the-badge&logo=Ubuntu&logoColor=white">
+<li>Framework</li>
+<img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=FastAPI&logoColor=white">
+<li>DataBase</li>
+<img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=MongoDB&logoColor=white">
 
+<br>
+<br>
 
 **개발 기록**
 --
+
 
 #### 7/28
 리팩토링 프로젝트 시작    
