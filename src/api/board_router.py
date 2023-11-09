@@ -134,8 +134,12 @@ async def update_board(request_body: UpdateBoardSchema = Depends(), file: Upload
             with open(os.path.join(upload_path, file_name), "wb") as f:
                 f.write(file_content)
 
-        my_col.update_one({"b_id": request_body.b_id, "user_email": user_email},
-                        {"$set": {"contents": request_body.contents, "recruitment": request_body.recruitment}})
+            my_col.update_one({"b_id": request_body.b_id, "user_email": user_email},
+                            {"$set": {"contents": request_body.contents, "recruitment": request_body.recruitment, "board_img_link": "/board/"+file_name}})
+        else:
+            my_col.update_one({"b_id": request_body.b_id, "user_email": user_email},
+                            {"$set": {"contents": request_body.contents, "recruitment": request_body.recruitment}})
+
         raise HTTPException(status_code=200, detail="게시물 수정 완료")
     else:
         raise HTTPException(status_code=400, detail="게시물 작성자가 일치하지 않습니다.")
