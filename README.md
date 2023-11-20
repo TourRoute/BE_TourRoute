@@ -1,6 +1,6 @@
 # 🪄 간편 여행의 시작, <span color="#3AD0FF">[ 투어라우트 ]</span>
 
-<img src="./src/readmeimg/1.png">
+<img src="./src/readmeimg/README-BE.png">
 
 <br />
 <h2 style="line-height: 1.7">경상도 지역의 여행지를 추천받고,<br />커뮤니티에서 동행인도 만날 수 있는 <span style="color: #3AD0FF">간편한 여행의 시작.</span> 투어라우트</h2>
