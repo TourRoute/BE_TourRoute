@@ -1,5 +1,7 @@
 # 🪄 간편 여행의 시작, <span color="#3AD0FF">[ 투어라우트 ]</span>
 
+project url = tour-route.vercel.app
+
 <img src="./src/readmeimg/README-BE.png">
 
 <br />
